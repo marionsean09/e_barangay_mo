@@ -8,7 +8,7 @@ void main() {
       (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(home: LoginPage()));
 
-    expect(find.text('Log in'), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, 'Log in'), findsOneWidget);
     expect(find.text('Create an account'), findsOneWidget);
   });
 }

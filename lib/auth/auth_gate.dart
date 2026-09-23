@@ -4,11 +4,9 @@ import 'package:appwrite/models.dart' as models;
 
 import 'package:e_barangay_mo/services/appwrite_service.dart';
 import 'package:e_barangay_mo/auth/login_page.dart';
-import 'package:e_barangay_mo/resident/submit_concern_page.dart';
+import 'package:e_barangay_mo/resident/resident_dashboard.dart';
 import 'package:e_barangay_mo/admin/admin_dashboard.dart';
 
-/// Clears the navigation history and shows the right page for the
-/// current session. Call this after login, signup, and logout.
 void goToAuthGate(BuildContext context) {
   Navigator.of(context).pushAndRemoveUntil(
     MaterialPageRoute(builder: (_) => const AuthGate()),
@@ -28,7 +26,7 @@ class _AuthGateState extends State<AuthGate> {
 
   Future<models.User?> _getUser() async {
     try {
-      return await AppwriteService.account.get(); // throws if not logged in
+      return await AppwriteService.account.get();
     } on AppwriteException {
       return null;
     }
@@ -50,11 +48,10 @@ class _AuthGateState extends State<AuthGate> {
           return const LoginPage();
         }
 
-        // ROLE LOGIC: admins have the "admin" label (set in Console → Auth → Users)
         if (user.labels.contains('admin')) {
-          return const AdminDashboard();
+          return AdminDashboard(user: user);
         }
-        return const SubmitConcernPage();
+        return ResidentDashboard(user: user);
       },
     );
   }

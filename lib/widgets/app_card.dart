@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:e_barangay_mo/theme/app_colors.dart';
 import 'package:e_barangay_mo/theme/app_tokens.dart';
 
-/// A floating card: surface-raised, hairline border, radius-md,
-/// shadow-card and space-4 padding.
 class AppCard extends StatelessWidget {
   const AppCard({
     super.key,

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:appwrite/appwrite.dart';
+import 'package:e_barangay_mo/theme/phosphor_icons.dart';
 import 'package:e_barangay_mo/services/appwrite_service.dart';
 import 'package:e_barangay_mo/auth/auth_gate.dart';
 import 'package:e_barangay_mo/theme/app_colors.dart';
 import 'package:e_barangay_mo/theme/app_tokens.dart';
 import 'package:e_barangay_mo/widgets/app_card.dart';
 import 'package:e_barangay_mo/widgets/brand_logo.dart';
-
+import 'package:e_barangay_mo/widgets/press_scale.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -26,7 +27,6 @@ class _SignupPageState extends State<SignupPage> {
     try {
       setState(() => isLoading = true);
 
-      // 1. Create the account (password must be at least 8 characters)
       final user = await AppwriteService.account.create(
         userId: ID.unique(),
         email: email.text.trim(),
@@ -34,13 +34,11 @@ class _SignupPageState extends State<SignupPage> {
         name: fullName.text.trim(),
       );
 
-      // 2. Log in, so this user is allowed to write to the database
       await AppwriteService.account.createEmailPasswordSession(
         email: email.text.trim(),
         password: password.text.trim(),
       );
 
-      // 3. Save the profile in the "users" table (row ID = user ID)
       await AppwriteService.tablesDB.createRow(
         databaseId: AppwriteService.databaseId,
         tableId: AppwriteService.usersTableId,
@@ -53,16 +51,16 @@ class _SignupPageState extends State<SignupPage> {
       );
 
       if (!mounted) return;
-      goToAuthGate(context); // goes straight to Submit Concern
+      goToAuthGate(context);
     } on AppwriteException catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message ?? "Sign up failed")));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message ?? "Sign up failed")));
     } finally {
       if (mounted) setState(() => isLoading = false);
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +94,7 @@ class _SignupPageState extends State<SignupPage> {
                     controller: fullName,
                     decoration: const InputDecoration(
                       labelText: "Full name",
-                      prefixIcon: Icon(Icons.person_outline),
+                      prefixIcon: Icon(PhosphorIconsRegular.user),
                     ),
                   ),
                   const SizedBox(height: AppSpace.s4),
@@ -106,7 +104,7 @@ class _SignupPageState extends State<SignupPage> {
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       labelText: "Email",
-                      prefixIcon: Icon(Icons.email_outlined),
+                      prefixIcon: Icon(PhosphorIconsRegular.envelope),
                     ),
                   ),
                   const SizedBox(height: AppSpace.s4),
@@ -117,23 +115,28 @@ class _SignupPageState extends State<SignupPage> {
                     decoration: const InputDecoration(
                       labelText: "Password",
                       helperText: "At least 8 characters",
-                      prefixIcon: Icon(Icons.lock_outline),
+                      prefixIcon: Icon(PhosphorIconsRegular.lock),
                     ),
                   ),
                   const SizedBox(height: AppSpace.s6),
 
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: isLoading ? null : signUp,
-                      child: isLoading
-                          ? SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: c.onPrimary),
-                            )
-                          : const Text("Sign up"),
+                    child: PressScale(
+                      enabled: !isLoading,
+                      child: ElevatedButton(
+                        onPressed: isLoading ? null : signUp,
+                        child: isLoading
+                            ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: c.onPrimary,
+                                ),
+                              )
+                            : const Text("Sign up"),
+                      ),
                     ),
                   ),
                 ],

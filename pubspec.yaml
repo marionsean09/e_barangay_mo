@@ -39,8 +39,6 @@ dependencies:
   image_picker: ^1.2.3
   google_fonts: ^8.2.1
   flutter_svg: ^2.3.0
-
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -66,6 +64,11 @@ flutter:
   assets:
     - assets/logos/
     - assets/google_fonts/
+
+  fonts:
+    - family: Phosphor
+      fonts:
+        - asset: assets/fonts/Phosphor.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

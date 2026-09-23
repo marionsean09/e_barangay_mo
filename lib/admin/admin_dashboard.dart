@@ -1,42 +1,55 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' as models;
+import 'package:e_barangay_mo/theme/phosphor_icons.dart';
 
+import 'package:e_barangay_mo/admin/concern_detail_page.dart';
+import 'package:e_barangay_mo/profile/profile_menu.dart';
 import 'package:e_barangay_mo/services/appwrite_service.dart';
-import 'package:e_barangay_mo/auth/auth_gate.dart';
 import 'package:e_barangay_mo/theme/app_colors.dart';
 import 'package:e_barangay_mo/theme/app_tokens.dart';
-import 'package:e_barangay_mo/widgets/app_card.dart';
+import 'package:e_barangay_mo/utils/concern_format.dart';
+import 'package:e_barangay_mo/widgets/brand_logo.dart';
+import 'package:e_barangay_mo/widgets/hero_panel.dart';
+import 'package:e_barangay_mo/widgets/service_card.dart';
 import 'package:e_barangay_mo/widgets/status_pill.dart';
 
 class AdminDashboard extends StatefulWidget {
-  const AdminDashboard({super.key});
+  const AdminDashboard({super.key, required this.user});
+
+  final models.User user;
 
   @override
   State<AdminDashboard> createState() => _AdminDashboardState();
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
+  late models.User user = widget.user;
   List<models.Row> concerns = [];
   bool isLoading = true;
+  String? loadError;
+  String filter = 'All';
   RealtimeSubscription? subscription;
+  StreamSubscription? listener;
 
   @override
   void initState() {
     super.initState();
     loadConcerns();
 
-    // Reload whenever any row in "concerns" is created or updated
     subscription = AppwriteService.realtime.subscribe([
       Channel.tablesdb(AppwriteService.databaseId)
           .table(AppwriteService.concernsTableId)
           .row(),
     ]);
-    subscription!.stream.listen((_) => loadConcerns());
+    listener = subscription!.stream.listen((_) => loadConcerns());
   }
 
   @override
   void dispose() {
+    listener?.cancel();
     subscription?.close();
     super.dispose();
   }
@@ -55,144 +68,284 @@ class _AdminDashboardState extends State<AdminDashboard> {
       setState(() {
         concerns = result.rows;
         isLoading = false;
+        loadError = null;
       });
     } on AppwriteException catch (e) {
       if (!mounted) return;
-      setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message ?? "Failed to load concerns")));
+      setState(() {
+        isLoading = false;
+        loadError = e.message ?? "Could not load concerns.";
+      });
     }
   }
 
-  Future<void> updateStatus(String rowId, String status) async {
-    await AppwriteService.tablesDB.updateRow(
-      databaseId: AppwriteService.databaseId,
-      tableId: AppwriteService.concernsTableId,
-      rowId: rowId,
-      data: {'status': status},
+  Future<void> openDetail(models.Row row) async {
+    final changed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => ConcernDetailPage(row: row)),
     );
-    await loadConcerns();
+    if (changed == true) loadConcerns();
   }
 
-  static const statuses = ["Pending", "In Progress", "Resolved"];
-  static const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-  ];
+  int count(String status) =>
+      concerns.where((r) => (r.data['status'] ?? 'Pending') == status).length;
 
-  /// "2026-09-23T08:15:00.000+00:00" → "Sep 23, 2026"
-  String formatDate(String iso) {
-    final date = DateTime.tryParse(iso)?.toLocal();
-    if (date == null) return '';
-    return '${months[date.month - 1]} ${date.day}, ${date.year}';
-  }
+  static const _overlap = 40.0;
 
-  IconData typeIcon(String? type) => switch (type) {
-        'Request' => Icons.description_outlined,
-        'Suggestion' => Icons.lightbulb_outline,
-        _ => Icons.report_outlined,
-      };
-
-  Widget concernCard(models.Row row) {
+  @override
+  Widget build(BuildContext context) {
     final c = context.colors;
     final text = Theme.of(context).textTheme;
-    final data = row.data;
-    final String status = data['status'] ?? 'Pending';
+    final name = firstName(user.name);
+    final pending = count('Pending');
+    final visible = filter == 'All'
+        ? concerns
+        : concerns
+            .where((r) => (r.data['status'] ?? 'Pending') == filter)
+            .toList();
 
-    return AppCard(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: c.primarySoft,
-              borderRadius: BorderRadius.circular(AppRadius.full),
-            ),
-            child: Icon(typeIcon(data['type']), color: c.primary, size: 22),
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: false,
+        titleSpacing: AppSpace.s4,
+        title: const BrandLockup(height: 32, onHero: true),
+        actions: [
+          IconButton(
+            icon: const Icon(PhosphorIconsRegular.arrowClockwise),
+            tooltip: "Refresh",
+            onPressed: loadConcerns,
           ),
-          const SizedBox(width: AppSpace.s3),
-          Expanded(
+          ProfileMenu(
+            user: user,
+            onProfileChanged: (u) => setState(() => user = u),
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: loadConcerns,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            HeroPanel(
+              overlap: _overlap,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name.isEmpty ? greeting() : "${greeting()}, $name",
+                    style: text.headlineMedium?.copyWith(color: c.onHero),
+                  ),
+                  const SizedBox(height: AppSpace.s6),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        isLoading ? "-" : "$pending",
+                        style: text.headlineMedium?.copyWith(
+                          color: c.onHero,
+                          fontSize: 64,
+                          height: 1,
+                          letterSpacing: -2,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpace.s3),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpace.s2),
+                        child: Text(
+                          pending == 1
+                              ? "concern waiting\nfor review"
+                              : "concerns waiting\nfor review",
+                          style: text.bodyLarge
+                              ?.copyWith(color: c.onHeroMuted, height: 1.3),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpace.s4),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 960),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      HeroOverlap(
+                        amount: _overlap,
+                        child: _StatCard(
+                          inProgress: count('In Progress'),
+                          resolved: count('Resolved'),
+                          rejected: count('Rejected'),
+                        ),
+                      ),
+                      Text("All concerns", style: text.titleLarge),
+                      const SizedBox(height: AppSpace.s3),
+                      Wrap(
+                        spacing: AppSpace.s2,
+                        runSpacing: AppSpace.s2,
+                        children: [
+                          for (final f in ['All', ...concernStatuses])
+                            ChoiceChip(
+                              label: Text(f),
+                              selected: filter == f,
+                              showCheckmark: false,
+                              onSelected: (_) => setState(() => filter = f),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpace.s4),
+                      ..._list(visible),
+                      const SizedBox(height: AppSpace.s8),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _list(List<models.Row> rows) {
+    final c = context.colors;
+    final text = Theme.of(context).textTheme;
+
+    if (isLoading) {
+      return [
+        for (var i = 0; i < 3; i++) ...[
+          const ServiceCardSkeleton(),
+          const SizedBox(height: AppSpace.s3),
+        ],
+      ];
+    }
+
+    if (loadError != null) {
+      return [
+        Row(
+          children: [
+            Icon(PhosphorIconsRegular.warning, color: c.danger),
+            const SizedBox(width: AppSpace.s2),
+            Expanded(
+              child: Text(loadError!,
+                  style: text.bodyMedium?.copyWith(color: c.danger)),
+            ),
+            TextButton(onPressed: loadConcerns, child: const Text("Retry")),
+          ],
+        ),
+      ];
+    }
+
+    if (rows.isEmpty) {
+      return [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpace.s8),
+          child: Column(
+            children: [
+              Icon(PhosphorIconsRegular.tray, size: 40, color: c.inkMuted),
+              const SizedBox(height: AppSpace.s3),
+              Text(
+                filter == 'All' ? "No concerns yet" : "Nothing marked $filter",
+                style: text.titleMedium,
+              ),
+              const SizedBox(height: AppSpace.s1),
+              Text(
+                "New requests and reports from residents appear here.",
+                style: text.bodySmall,
+              ),
+            ],
+          ),
+        ),
+      ];
+    }
+
+    return [
+      for (final row in rows) ...[
+        ServiceCard(
+          icon: typeIcon(row.data['type']),
+          title: row.data['title'] ?? '',
+          meta:
+              "Ref. ${referenceFor(row)}, filed ${formatDate(parseDate(row.$createdAt) ?? DateTime.now())}",
+          status: row.data['status'] ?? 'Pending',
+          statusLabel: statusLabel(row.data),
+          note: _note(row.data),
+          noteMuted: row.data['type'] == 'Blotter' &&
+              parseDate(row.data['finalDate']) == null,
+          onTap: () => openDetail(row),
+        ),
+        const SizedBox(height: AppSpace.s3),
+      ],
+    ];
+  }
+}
+
+String? _note(Map<String, dynamic> data) {
+  if (data['type'] == 'Blotter') {
+    final scheduled = parseDate(data['finalDate']);
+    if (scheduled != null) return "Scheduled for ${formatLongDate(scheduled)}";
+    final requested = parseDate(data['requestedDate']);
+    return requested == null
+        ? null
+        : "Requested ${formatLongDate(requested)}. Needs a final date.";
+  }
+  final claim = parseDate(data['claimDate']);
+  return claim == null ? null : "Claim on ${formatLongDate(claim)}";
+}
+
+class _StatCard extends StatelessWidget {
+  const _StatCard({
+    required this.inProgress,
+    required this.resolved,
+    required this.rejected,
+  });
+
+  final int inProgress;
+  final int resolved;
+  final int rejected;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final text = Theme.of(context).textTheme;
+
+    Widget cell(String status, int value) => Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.s4, vertical: AppSpace.s4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(data['title'] ?? '', style: text.titleMedium),
-                const SizedBox(height: AppSpace.s1),
-                Text(
-                  "${data['type']} · ${formatDate(row.$createdAt)}",
-                  style: text.bodySmall,
-                ),
+                Text("$value", style: text.headlineMedium?.copyWith(height: 1)),
                 const SizedBox(height: AppSpace.s2),
                 StatusPill(status),
               ],
             ),
           ),
-          PopupMenuButton<String>(
-            tooltip: "Change status",
-            icon: Icon(Icons.more_vert, color: c.inkMuted),
-            onSelected: (v) => updateStatus(row.$id, v),
-            itemBuilder: (_) => [
-              for (final s in statuses)
-                CheckedPopupMenuItem(
-                  value: s,
-                  checked: s == status,
-                  child: Text(s),
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+        );
 
-  @override
-  Widget build(BuildContext context) {
-    final text = Theme.of(context).textTheme;
+    Widget divider() => VerticalDivider(width: 1, color: c.border);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Admin dashboard"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: "Refresh",
-            onPressed: loadConcerns,
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: "Log out",
-            onPressed: () async {
-              await AppwriteService.account.deleteSession(sessionId: 'current');
-              if (context.mounted) goToAuthGate(context);
-            },
-          )
-        ],
+    return Container(
+      decoration: BoxDecoration(
+        color: c.surfaceRaised,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: c.border),
+        boxShadow: c.cardShadow,
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : concerns.isEmpty
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpace.s8),
-                child: Text("No concerns yet", style: text.bodySmall),
-              ),
-            )
-          : RefreshIndicator(
-              onRefresh: loadConcerns,
-              child: ListView.separated(
-                padding: const EdgeInsets.all(AppSpace.s4),
-                itemCount: concerns.length,
-                separatorBuilder: (_, _) =>
-                    const SizedBox(height: AppSpace.s3),
-                itemBuilder: (_, i) => Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 720),
-                    child: concernCard(concerns[i]),
-                  ),
-                ),
-              ),
-            ),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            cell('In Progress', inProgress),
+            divider(),
+            cell('Resolved', resolved),
+            divider(),
+            cell('Rejected', rejected),
+          ],
+        ),
+      ),
     );
   }
 }

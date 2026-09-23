@@ -1,11 +1,11 @@
 {
-    "name": "e_barangay_mo",
-    "short_name": "e_barangay_mo",
+    "name": "eBarangay Mo",
+    "short_name": "eBarangay Mo",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FCEEF0",
+    "theme_color": "#A30D26",
+    "description": "Serbisyong pambarangay: request documents and report concerns to your barangay.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

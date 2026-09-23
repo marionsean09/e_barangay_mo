@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// eBarangay Mo color tokens (from the design system's tokens.json).
-/// Read them in widgets with `context.colors.primary`, etc.
 @immutable
 class AppColors extends ThemeExtension<AppColors> {
   const AppColors({
@@ -16,77 +14,98 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.onPrimary,
     required this.success,
     required this.danger,
+    required this.hero,
+    required this.heroDeep,
+    required this.heroBright,
+    required this.heroSoft,
+    required this.onHero,
+    required this.onHeroMuted,
     required this.cardShadow,
   });
 
-  /// Screen background.
   final Color surface;
 
-  /// Cards, sheets, inputs on surface.
   final Color surfaceRaised;
 
-  /// Primary text and icons.
   final Color ink;
 
-  /// Secondary text, captions, helper text, input borders.
   final Color inkMuted;
 
-  /// Hairline dividers and card outlines (decorative only).
   final Color border;
 
-  /// Maroon, the one brand accent: primary buttons, links, selected states.
   final Color primary;
 
-  /// Pressed / hover state of primary.
   final Color primaryStrong;
 
-  /// Selected rows, info banners, chips, "Pending". Put primary text on it.
   final Color primarySoft;
 
-  /// Text and icons on primary, success and danger.
   final Color onPrimary;
 
-  /// Approved, ready, paid, resolved.
   final Color success;
 
-  /// Errors, rejected, emergency. Always paired with a word or icon.
   final Color danger;
 
-  /// shadow-card: the only elevation, for floating cards and sheets.
+  final Color hero;
+  final Color heroDeep;
+
+  final Color heroBright;
+  final Color heroSoft;
+
+  final Color onHero;
+  final Color onHeroMuted;
+
   final List<BoxShadow> cardShadow;
 
+  LinearGradient get heroGradient => LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [hero, heroDeep],
+      );
+
   static const light = AppColors(
-    surface: Color(0xFFF4F2F2),
-    surfaceRaised: Color(0xFFFCFBFB),
-    ink: Color(0xFF1B1618),
-    inkMuted: Color(0xFF625A5D),
-    border: Color(0xFFE3DDDE),
-    primary: Color(0xFF6E1423),
-    primaryStrong: Color(0xFF4F0E19),
-    primarySoft: Color(0xFFF3E4E6),
-    onPrimary: Color(0xFFFCFBFB),
-    success: Color(0xFF1E6B4B),
-    danger: Color(0xFFC0392B),
+    surface: Color(0xFFFCEEF0),
+    surfaceRaised: Color(0xFFFFF8F9),
+    ink: Color(0xFF2A0A10),
+    inkMuted: Color(0xFF7C3F4A),
+    border: Color(0xFFF2CDD4),
+    primary: Color(0xFFC8102E),
+    primaryStrong: Color(0xFF8F0A20),
+    primarySoft: Color(0xFFFBE3E7),
+    onPrimary: Color(0xFFFFF5F6),
+    success: Color(0xFF18704A),
+    danger: Color(0xFFB45309),
+    hero: Color(0xFFA30D26),
+    heroDeep: Color(0xFF5C0716),
+    heroBright: Color(0xFFE23A55),
+    heroSoft: Color(0xFFF6C3CB),
+    onHero: Color(0xFFFFF5F6),
+    onHeroMuted: Color(0xFFF6C3CB),
     cardShadow: [
       BoxShadow(
-          color: Color(0x0F4E0E19), offset: Offset(0, 1), blurRadius: 2),
+          color: Color(0x145C0716), offset: Offset(0, 1), blurRadius: 2),
       BoxShadow(
-          color: Color(0x0F4E0E19), offset: Offset(0, 8), blurRadius: 24),
+          color: Color(0x0F5C0716), offset: Offset(0, 4), blurRadius: 16),
     ],
   );
 
   static const dark = AppColors(
-    surface: Color(0xFF141012),
-    surfaceRaised: Color(0xFF1E191B),
-    ink: Color(0xFFF3EEEF),
-    inkMuted: Color(0xFFACA2A6),
-    border: Color(0xFF342C2F),
-    primary: Color(0xFFE0808E),
-    primaryStrong: Color(0xFFEDA3AE),
-    primarySoft: Color(0xFF3B1A20),
-    onPrimary: Color(0xFF1B1618),
-    success: Color(0xFF6FC79B),
-    danger: Color(0xFFFF8F80),
+    surface: Color(0xFF17070A),
+    surfaceRaised: Color(0xFF240B10),
+    ink: Color(0xFFFDEEF0),
+    inkMuted: Color(0xFFD29BA5),
+    border: Color(0xFF401820),
+    primary: Color(0xFFFF5C72),
+    primaryStrong: Color(0xFFFF8A9A),
+    primarySoft: Color(0xFF4A1520),
+    onPrimary: Color(0xFF1A0609),
+    success: Color(0xFF5FCB95),
+    danger: Color(0xFFF5A524),
+    hero: Color(0xFF7A0A1C),
+    heroDeep: Color(0xFF2E050C),
+    heroBright: Color(0xFFC8102E),
+    heroSoft: Color(0xFF4A1520),
+    onHero: Color(0xFFFFF1F3),
+    onHeroMuted: Color(0xFFF2B3BD),
     cardShadow: [
       BoxShadow(
           color: Color(0x66000000), offset: Offset(0, 1), blurRadius: 2),
@@ -106,6 +125,12 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? onPrimary,
     Color? success,
     Color? danger,
+    Color? hero,
+    Color? heroDeep,
+    Color? heroBright,
+    Color? heroSoft,
+    Color? onHero,
+    Color? onHeroMuted,
     List<BoxShadow>? cardShadow,
   }) {
     return AppColors(
@@ -120,6 +145,12 @@ class AppColors extends ThemeExtension<AppColors> {
       onPrimary: onPrimary ?? this.onPrimary,
       success: success ?? this.success,
       danger: danger ?? this.danger,
+      hero: hero ?? this.hero,
+      heroDeep: heroDeep ?? this.heroDeep,
+      heroBright: heroBright ?? this.heroBright,
+      heroSoft: heroSoft ?? this.heroSoft,
+      onHero: onHero ?? this.onHero,
+      onHeroMuted: onHeroMuted ?? this.onHeroMuted,
       cardShadow: cardShadow ?? this.cardShadow,
     );
   }
@@ -127,25 +158,31 @@ class AppColors extends ThemeExtension<AppColors> {
   @override
   AppColors lerp(ThemeExtension<AppColors>? other, double t) {
     if (other is! AppColors) return this;
+    Color l(Color a, Color b) => Color.lerp(a, b, t)!;
     return AppColors(
-      surface: Color.lerp(surface, other.surface, t)!,
-      surfaceRaised: Color.lerp(surfaceRaised, other.surfaceRaised, t)!,
-      ink: Color.lerp(ink, other.ink, t)!,
-      inkMuted: Color.lerp(inkMuted, other.inkMuted, t)!,
-      border: Color.lerp(border, other.border, t)!,
-      primary: Color.lerp(primary, other.primary, t)!,
-      primaryStrong: Color.lerp(primaryStrong, other.primaryStrong, t)!,
-      primarySoft: Color.lerp(primarySoft, other.primarySoft, t)!,
-      onPrimary: Color.lerp(onPrimary, other.onPrimary, t)!,
-      success: Color.lerp(success, other.success, t)!,
-      danger: Color.lerp(danger, other.danger, t)!,
+      surface: l(surface, other.surface),
+      surfaceRaised: l(surfaceRaised, other.surfaceRaised),
+      ink: l(ink, other.ink),
+      inkMuted: l(inkMuted, other.inkMuted),
+      border: l(border, other.border),
+      primary: l(primary, other.primary),
+      primaryStrong: l(primaryStrong, other.primaryStrong),
+      primarySoft: l(primarySoft, other.primarySoft),
+      onPrimary: l(onPrimary, other.onPrimary),
+      success: l(success, other.success),
+      danger: l(danger, other.danger),
+      hero: l(hero, other.hero),
+      heroDeep: l(heroDeep, other.heroDeep),
+      heroBright: l(heroBright, other.heroBright),
+      heroSoft: l(heroSoft, other.heroSoft),
+      onHero: l(onHero, other.onHero),
+      onHeroMuted: l(onHeroMuted, other.onHeroMuted),
       cardShadow: BoxShadow.lerpList(cardShadow, other.cardShadow, t)!,
     );
   }
 }
 
 extension AppColorsContext on BuildContext {
-  /// The eBarangay Mo color tokens for the current theme (light or dark).
   AppColors get colors =>
       Theme.of(this).extension<AppColors>() ??
       (Theme.of(this).brightness == Brightness.dark

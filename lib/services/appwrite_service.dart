@@ -1,7 +1,6 @@
 import 'package:appwrite/appwrite.dart';
 
 class AppwriteService {
-  // Paste the API Endpoint from Console → Settings (Step 1.4)
   static const String endpoint = 'https://sgp.cloud.appwrite.io/v1';
   static const String projectId = '6ab383c50001b620d39f';
 
@@ -9,7 +8,6 @@ class AppwriteService {
   static const String usersTableId = '6ab38724001d34a6ff07';
   static const String concernsTableId = '6ab3893f001e85b86a85';
 
-  // Storage bucket for request requirement photos (Console → Storage)
   static const String requirementsBucketId = '6ab397870001dad0909a';
 
   static final Client client = Client()

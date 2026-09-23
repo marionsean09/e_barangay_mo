@@ -8,10 +8,8 @@ import 'package:e_barangay_mo/auth/auth_gate.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Geist is bundled in assets/google_fonts/, so never download it.
   GoogleFonts.config.allowRuntimeFetching = false;
 
-  // Connection test: check the Debug Console for the result
   try {
     await AppwriteService.client.ping();
     debugPrint('✅ Connected to Appwrite');
@@ -32,7 +30,7 @@ class MyApp extends StatelessWidget {
       title: 'eBarangay Mo',
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.system, // follows the phone/computer setting
+      themeMode: ThemeMode.system,
       home: const AuthGate(),
     );
   }

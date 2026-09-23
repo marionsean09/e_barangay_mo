@@ -1,18 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:e_barangay_mo/theme/app_colors.dart';
 import 'package:e_barangay_mo/theme/app_tokens.dart';
 
-/// Builds the eBarangay Mo light and dark themes.
-///
-/// Text styles from the design system map to Flutter's TextTheme:
-///   display  → headlineMedium   (one per screen)
-///   title    → titleLarge       (card and sheet headings)
-///   subtitle → titleMedium      (list row titles, button labels)
-///   body     → bodyLarge / bodyMedium
-///   caption  → bodySmall        (dates, reference numbers, in ink-muted)
-///   label    → labelMedium      (status pills)
 abstract final class AppTheme {
   static ThemeData light() => _build(AppColors.light, Brightness.light);
   static ThemeData dark() => _build(AppColors.dark, Brightness.dark);
@@ -74,14 +66,16 @@ abstract final class AppTheme {
       iconTheme: IconThemeData(color: c.ink, size: 24),
 
       appBarTheme: AppBarTheme(
-        backgroundColor: c.surface,
-        foregroundColor: c.ink,
+        backgroundColor: c.hero,
+        foregroundColor: c.onHero,
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         centerTitle: true,
-        titleTextStyle: textTheme.titleLarge,
-        shape: Border(bottom: BorderSide(color: c.border)),
+        titleTextStyle: textTheme.titleLarge?.copyWith(color: c.onHero),
+        iconTheme: IconThemeData(color: c.onHero),
+        actionsIconTheme: IconThemeData(color: c.onHero),
+        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
 
       cardTheme: CardThemeData(
@@ -94,7 +88,6 @@ abstract final class AppTheme {
         ),
       ),
 
-      // Primary button: maroon, 48px tall, radius-md, subtitle label.
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
           minimumSize: const WidgetStatePropertyAll(buttonSize),
@@ -122,7 +115,6 @@ abstract final class AppTheme {
         ),
       ),
 
-      // Secondary button: outlined in maroon.
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           minimumSize: buttonSize,
@@ -133,7 +125,6 @@ abstract final class AppTheme {
         ),
       ),
 
-      // Quiet / link-style actions.
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: c.primary,
@@ -142,11 +133,6 @@ abstract final class AppTheme {
         ),
       ),
 
-      iconButtonTheme: IconButtonThemeData(
-        style: IconButton.styleFrom(foregroundColor: c.ink),
-      ),
-
-      // Inputs: radius-sm, ink-muted border, maroon when focused.
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: c.surfaceRaised,
@@ -181,6 +167,34 @@ abstract final class AppTheme {
       ),
       dropdownMenuTheme: DropdownMenuThemeData(
         textStyle: textTheme.bodyLarge,
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: c.surfaceRaised,
+        selectedColor: c.primarySoft,
+        disabledColor: c.surfaceRaised,
+        labelStyle: textTheme.bodyMedium?.copyWith(color: c.ink),
+        secondaryLabelStyle: textTheme.bodyMedium?.copyWith(color: c.primary),
+        side: WidgetStateBorderSide.resolveWith((states) => BorderSide(
+            color: states.contains(WidgetState.selected)
+                ? c.primarySoft
+                : c.border)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.sm)),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpace.s1),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: c.surfaceRaised,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.lg)),
+      ),
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: c.surfaceRaised,
+        surfaceTintColor: Colors.transparent,
+        headerBackgroundColor: c.primary,
+        headerForegroundColor: c.onPrimary,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.lg)),
       ),
       popupMenuTheme: PopupMenuThemeData(
         color: c.surfaceRaised,
