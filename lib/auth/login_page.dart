@@ -4,6 +4,10 @@ import 'package:e_barangay_mo/services/appwrite_service.dart';
 import 'package:e_barangay_mo/auth/auth_gate.dart';
 
 import 'package:e_barangay_mo/auth/signup_page.dart';
+import 'package:e_barangay_mo/theme/app_colors.dart';
+import 'package:e_barangay_mo/theme/app_tokens.dart';
+import 'package:e_barangay_mo/widgets/app_card.dart';
+import 'package:e_barangay_mo/widgets/brand_logo.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -49,76 +53,64 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
+    final text = Theme.of(context).textTheme;
+
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
-          child: Card(
-            elevation: 6,
-            margin: const EdgeInsets.all(20),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpace.s4),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: AppCard(
+              padding: const EdgeInsets.all(AppSpace.s6),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
-                    Icons.account_balance,
-                    size: 70,
-                    color: Colors.blue,
-                  ),
-                  const SizedBox(height: 10),
+                  const BrandLockup(height: 48),
+                  const SizedBox(height: AppSpace.s2),
+                  Text("Request, report, resolve", style: text.bodySmall),
 
-                  const Text(
-                    "E-Barangay Mo",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Text(
-                    "Request • Report • Resolve",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-
-                  const SizedBox(height: 30),
+                  const SizedBox(height: AppSpace.s8),
 
                   TextField(
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       labelText: "Email",
-                      prefixIcon: Icon(Icons.email),
+                      prefixIcon: Icon(Icons.email_outlined),
                     ),
                   ),
 
-                  const SizedBox(height: 15),
+                  const SizedBox(height: AppSpace.s4),
 
                   TextField(
                     controller: passwordController,
                     obscureText: true,
                     decoration: const InputDecoration(
                       labelText: "Password",
-                      prefixIcon: Icon(Icons.lock),
+                      prefixIcon: Icon(Icons.lock_outline),
                     ),
                   ),
 
-                  const SizedBox(height: 25),
+                  const SizedBox(height: AppSpace.s6),
 
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: isLoading ? null : login,
                       child: isLoading
-                          ? const CircularProgressIndicator(
-                              color: Colors.white,
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: c.onPrimary),
                             )
-                          : const Text("LOGIN"),
+                          : const Text("Log in"),
                     ),
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: AppSpace.s2),
 
                   TextButton(
                     onPressed: () {
@@ -129,9 +121,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       );
                     },
-                    child: const Text(
-                      "Don't have an account? Sign up",
-                    ),
+                    child: const Text("Create an account"),
                   ),
                 ],
               ),

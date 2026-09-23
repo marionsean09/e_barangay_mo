@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:e_barangay_mo/services/appwrite_service.dart';
+import 'package:e_barangay_mo/theme/app_theme.dart';
 import 'package:e_barangay_mo/auth/auth_gate.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Geist is bundled in assets/google_fonts/, so never download it.
+  GoogleFonts.config.allowRuntimeFetching = false;
 
   // Connection test: check the Debug Console for the result
   try {
@@ -24,17 +29,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'E-Barangay Mo',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        scaffoldBackgroundColor: const Color(0xFFF4F6F8),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.blue,
-          foregroundColor: Colors.white,
-          centerTitle: true,
-        ),
-      ),
+      title: 'eBarangay Mo',
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: ThemeMode.system, // follows the phone/computer setting
       home: const AuthGate(),
     );
   }

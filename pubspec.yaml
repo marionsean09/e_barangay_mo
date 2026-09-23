@@ -37,6 +37,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   appwrite: ^26.2.0
   image_picker: ^1.2.3
+  google_fonts: ^8.2.1
+  flutter_svg: ^2.3.0
 
 
 dev_dependencies:
@@ -60,6 +62,10 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/logos/
+    - assets/google_fonts/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

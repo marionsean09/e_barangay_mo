@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:appwrite/appwrite.dart';
 import 'package:e_barangay_mo/services/appwrite_service.dart';
 import 'package:e_barangay_mo/auth/auth_gate.dart';
+import 'package:e_barangay_mo/theme/app_colors.dart';
+import 'package:e_barangay_mo/theme/app_tokens.dart';
+import 'package:e_barangay_mo/widgets/app_card.dart';
+import 'package:e_barangay_mo/widgets/brand_logo.dart';
 
 
 class SignupPage extends StatefulWidget {
@@ -62,66 +66,78 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.colors;
+    final text = Theme.of(context).textTheme;
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Create Account")),
+      appBar: AppBar(title: const Text("Create account")),
       body: Center(
-        child: Card(
-          elevation: 6,
-          margin: const EdgeInsets.all(20),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.person_add,
-                    size: 60, color: Colors.blue),
-                const SizedBox(height: 10),
-                const Text(
-                  "Resident Registration",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-
-                TextField(
-                  controller: fullName,
-                  decoration: const InputDecoration(
-                    labelText: "Full Name",
-                    prefixIcon: Icon(Icons.person),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpace.s4),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: AppCard(
+              padding: const EdgeInsets.all(AppSpace.s6),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const BrandMark(size: 56),
+                  const SizedBox(height: AppSpace.s4),
+                  Text("Resident registration", style: text.titleLarge),
+                  const SizedBox(height: AppSpace.s1),
+                  Text(
+                    "Use your real name. It appears on your documents.",
+                    style: text.bodySmall,
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                const SizedBox(height: 10),
+                  const SizedBox(height: AppSpace.s6),
 
-                TextField(
-                  controller: email,
-                  decoration: const InputDecoration(
-                    labelText: "Email",
-                    prefixIcon: Icon(Icons.email),
+                  TextField(
+                    controller: fullName,
+                    decoration: const InputDecoration(
+                      labelText: "Full name",
+                      prefixIcon: Icon(Icons.person_outline),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 10),
+                  const SizedBox(height: AppSpace.s4),
 
-                TextField(
-                  controller: password,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: "Password",
-                    prefixIcon: Icon(Icons.lock),
+                  TextField(
+                    controller: email,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(
+                      labelText: "Email",
+                      prefixIcon: Icon(Icons.email_outlined),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
+                  const SizedBox(height: AppSpace.s4),
 
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: isLoading ? null : signUp,
-                    child: isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text("SIGN UP"),
+                  TextField(
+                    controller: password,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: "Password",
+                      helperText: "At least 8 characters",
+                      prefixIcon: Icon(Icons.lock_outline),
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: AppSpace.s6),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: isLoading ? null : signUp,
+                      child: isLoading
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: c.onPrimary),
+                            )
+                          : const Text("Sign up"),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

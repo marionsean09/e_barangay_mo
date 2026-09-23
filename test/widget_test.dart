@@ -4,11 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:e_barangay_mo/auth/login_page.dart';
 
 void main() {
-  testWidgets('Login page shows the app name and login button',
+  testWidgets('Login page shows the log in and sign up actions',
       (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(home: LoginPage()));
 
-    expect(find.text('E-Barangay Mo'), findsOneWidget);
-    expect(find.text('LOGIN'), findsOneWidget);
+    expect(find.text('Log in'), findsOneWidget);
+    expect(find.text('Create an account'), findsOneWidget);
   });
 }
